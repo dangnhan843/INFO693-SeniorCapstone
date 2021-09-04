@@ -19,10 +19,36 @@ public class EmulateGrab : MonoBehaviour
 
     private bool isGrabbing = false;             //A control variable that stores if the user is grabbing anything
     private Transform grabbedTransform;          //A variable to hold the grabbed object's transform
+    private Transform clickTransform;
     public float zSpeed = 4.5f;                  //A variable to control the speed of movement in z-axis (forward/backward)
     public float rotationSpeedMultiplier = 2.0f; //A variable to increase the rotational speed for the controller
     private Transform hitTransform;              //A variable to hold the hit object's transform
-    
+
+
+    public GameObject[] Os;
+    public GameObject[] Xs;
+    public int[] playSpace;
+    public GameObject[] TTTs;
+
+    void Start()
+    {
+        
+        foreach (GameObject O in Os)
+        {
+            O.SetActive(false);
+        }
+        foreach (GameObject X in Xs)
+        {
+            X.SetActive(false);
+        }
+
+        TTTs = GameObject.FindGameObjectsWithTag("TTTSpace");
+        foreach (GameObject TTT in TTTs)
+        {
+            TTT.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+    }
+
     void Update()
     {
         if (Input.GetKey(KeyCode.C)) //When the C key is pressed, we'll rotate the controller with the mouse movements
@@ -36,6 +62,22 @@ public class EmulateGrab : MonoBehaviour
         RaycastHit hitInfo2;
         if (Physics.Raycast(new Ray(transform.position, transform.forward), out hitInfo2))
         {
+            if (hitInfo2.transform.tag == "TTTSpace")
+            {
+                if (hitTransform != null)
+                    hitTransform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+                hitTransform = hitInfo2.transform;
+                hitTransform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+                //Debug.Log(hitInfo2.transform.GetComponent<SpriteRenderer>().material.color);
+            }
+            else
+            {
+                hitTransform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+            }
+
+            //CheckHit(hitInfo2);
+            
+            /*
             //If we are pointing at a grabbable object, but not grabbing
             if (hitInfo2.transform.tag == "Grabbable" && !isGrabbing)
             {
@@ -51,6 +93,10 @@ public class EmulateGrab : MonoBehaviour
                 if (hitTransform != null && !isGrabbing) //If we are hitting a non-grabbable object
                     SetHighlight(hitTransform, false); //We dim the previously pointed object
             }
+            //
+            */
+
+
         }
 
         else //If we are not hitting any object
@@ -66,6 +112,40 @@ public class EmulateGrab : MonoBehaviour
             RaycastHit hitInfo;
             if (Physics.Raycast(new Ray(transform.position, transform.forward), out hitInfo))
             {
+                string tileName = CheckHitName(hitInfo);
+                int tileNumberX = CheckHitNumber(hitInfo);
+
+                if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] != 1) //If we are hitting a grabbable object
+                {
+                    //clickTransform = hitInfo.transform;
+                    playSpace[tileNumberX - 1] = 1;
+                    Xs[tileNumberX - 1].SetActive(true);
+                    Debug.Log(tileNumberX - 1);
+
+                    bool tempGameEnd = checkEndMove(playSpace);
+                    bool AIMove = true;
+                    if (!tempGameEnd)
+                    {
+                        while (AIMove)
+                        {
+                            int movePosition = Random.Range(0, 8);
+                            if (movePosition != (tileNumberX - 1))
+                            {
+                                if (playSpace[movePosition] != 1)
+                                {
+                                    Os[movePosition].SetActive(true);
+
+                                    playSpace[movePosition] = 1;
+                                    Debug.Log(movePosition);
+                                    AIMove = false;
+                                }
+                            }
+
+                        }
+                    }
+                }
+
+
                 if (hitInfo.transform.tag == "Grabbable") //If we are hitting a grabbable object
                 {
                     isGrabbing = true; //We turn the control variable to true indicating that we are grabbing
@@ -121,7 +201,7 @@ public class EmulateGrab : MonoBehaviour
             //We are setting the material color of the highlighted object as cyan
             t.GetComponent<Renderer>().material.color = Color.cyan;
             //We are setting the outline mode as OutlineAll
-            t.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
+            //t.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineAll;
             //We are setting the color of the linerenderer as fully opaque
             transform.GetComponent<LineRenderer>().material.color = new Color(1.0f, 1.0f, 0.0f, 1.0f); 
         }
@@ -130,9 +210,100 @@ public class EmulateGrab : MonoBehaviour
             //We are reverting the material color of the highlighted object to the original color
             t.GetComponent<Renderer>().material.color = t.GetComponent<IsHit_S>().originalColorVar;
             //We are setting the outline mode as OutlineHidden
-            t.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineHidden;
+            //t.GetComponent<Outline>().OutlineMode = Outline.Mode.OutlineHidden;
             //We are setting the material color of the linerenderer as half transparent
             transform.GetComponent<LineRenderer>().material.color = new Color(1.0f, 1.0f, 0.0f, 0.5f); 
         }
+    }
+
+    string CheckHitName(RaycastHit hitInfo2)
+    {
+        string name = "";
+        switch (hitInfo2.collider.name)
+        {
+            case "1":
+                name = "X1";
+                break;
+            case "2":
+                name = "X2";
+                break;
+            case "3":
+                name = "X3";
+                break;
+            case "4":
+                name = "X4";
+                break;
+            case "5":
+                name = "X5";
+                break;
+            case "6":
+                name = "X6";
+                break;
+            case "7":
+                name = "X7";
+
+                break;
+            case "8":
+                name = "X8";
+                break;
+            case "9":
+                name = "X9";
+                break;
+        }
+        return name;
+    }
+
+    int  CheckHitNumber(RaycastHit hitInfo2)
+    {
+        int number = 0;
+        switch (hitInfo2.collider.name)
+        {
+            case "1":
+                number = 1;
+                break;
+            case "2":
+                number = 2;
+                break;
+            case "3":
+                number = 3;
+                break;
+            case "4":
+                number = 4;
+                break;
+            case "5":
+                number = 5;
+                break;
+            case "6":
+                number = 6;
+                break;
+            case "7":
+                number = 7;
+                break;
+            case "8":
+                number = 8;
+                break;
+            case "9":
+                number = 9;
+                break;
+        }
+        return number;
+    } 
+
+    bool checkEndMove(int[] spaceToPlay)
+    {
+        foreach (int i in spaceToPlay)
+        {
+            if ( i ==0 )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    bool isWind()
+    {
+
+        return true;
     }
 }
