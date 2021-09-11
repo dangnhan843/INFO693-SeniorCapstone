@@ -16,6 +16,9 @@ public class EmulateGrab : MonoBehaviour
     float controllerSpeedVertical = 1.5f;
     float controllerYaw = 0.0f;
     float controllerPitch = 0.0f;
+    float delayTime = 1.0f;
+    private bool delayTimeCounter = false;
+
 
     private bool isGrabbing = false;             //A control variable that stores if the user is grabbing anything
     private Transform grabbedTransform;          //A variable to hold the grabbed object's transform
@@ -23,6 +26,8 @@ public class EmulateGrab : MonoBehaviour
     public float zSpeed = 4.5f;                  //A variable to control the speed of movement in z-axis (forward/backward)
     public float rotationSpeedMultiplier = 2.0f; //A variable to increase the rotational speed for the controller
     private Transform hitTransform;              //A variable to hold the hit object's transform
+    public int turnCount = 0;
+    public bool playerFirst = true;
 
 
     public GameObject[] Os;
@@ -32,15 +37,8 @@ public class EmulateGrab : MonoBehaviour
 
     void Start()
     {
-        
-        foreach (GameObject O in Os)
-        {
-            O.SetActive(false);
-        }
-        foreach (GameObject X in Xs)
-        {
-            X.SetActive(false);
-        }
+
+        resetGame();
 
         TTTs = GameObject.FindGameObjectsWithTag("TTTSpace");
         foreach (GameObject TTT in TTTs)
@@ -51,6 +49,9 @@ public class EmulateGrab : MonoBehaviour
 
     void Update()
     {
+        if (delayTimeCounter == true)
+            StartCoroutine(delayReset());
+
         if (Input.GetKey(KeyCode.C)) //When the C key is pressed, we'll rotate the controller with the mouse movements
         {
             controllerYaw += controllerSpeedHorizontal * Input.GetAxis("Mouse X") * rotationSpeedMultiplier;
@@ -110,57 +111,61 @@ public class EmulateGrab : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Mouse0)) //If we are pressing down the left mouse button
         {
             RaycastHit hitInfo;
-            if (Physics.Raycast(new Ray(transform.position, transform.forward), out hitInfo))
+            if (delayTimeCounter ==  false)
             {
-                string tileName = CheckHitName(hitInfo);
-                int tileNumberX = CheckHitNumber(hitInfo);
-
-                if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] != 1) //If we are hitting a grabbable object
+                if (Physics.Raycast(new Ray(transform.position, transform.forward), out hitInfo))
                 {
-                    //clickTransform = hitInfo.transform;
-                    playSpace[tileNumberX - 1] = 1;
-                    Xs[tileNumberX - 1].SetActive(true);
-                    Debug.Log(tileNumberX - 1);
-
-                    bool tempGameEnd = checkEndMove(playSpace);
-                    bool AIMove = true;
-                    if (!tempGameEnd)
+                    string tileName = CheckHitName(hitInfo);
+                    int tileNumberX = CheckHitNumber(hitInfo);
+                    if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] == 0) //If we are hitting a grabbable object
                     {
-                        while (AIMove)
+                        //clickTransform = hitInfo.transform;
+                        playSpace[tileNumberX - 1] = 1;
+                        turnCount++;
+                        Xs[tileNumberX - 1].SetActive(true);
+                        //Debug.Log(tileNumberX - 1);
+
+                        bool tempGameEnd = checkEndMove(playSpace);
+                        bool AIMove = true;
+                        if (!tempGameEnd)
                         {
-                            int movePosition = Random.Range(0, 8);
-                            if (movePosition != (tileNumberX - 1))
+                            while (AIMove)
                             {
-                                if (playSpace[movePosition] != 1)
+                                int movePosition = Random.Range(0, 8);
+                                if (movePosition != (tileNumberX - 1))
                                 {
-                                    Os[movePosition].SetActive(true);
-
-                                    playSpace[movePosition] = 1;
-                                    Debug.Log(movePosition);
-                                    AIMove = false;
+                                    if (playSpace[movePosition] == 0)
+                                    {
+                                        Os[movePosition].SetActive(true);
+                                        turnCount++;
+                                        playSpace[movePosition] = 2;
+                                        //Debug.Log(movePosition);
+                                        AIMove = false;
+                                    }
                                 }
-                            }
 
+                            }
                         }
                     }
-                }
+                    winConditionChecking();
 
+                    if (hitInfo.transform.tag == "Grabbable") //If we are hitting a grabbable object
+                    {
+                        isGrabbing = true; //We turn the control variable to true indicating that we are grabbing
 
-                if (hitInfo.transform.tag == "Grabbable") //If we are hitting a grabbable object
-                {
-                    isGrabbing = true; //We turn the control variable to true indicating that we are grabbing
-
-                    grabbedTransform = hitInfo.transform;
-                    //We are setting isKinematic as true to control the movement via code
-                    grabbedTransform.GetComponent<Rigidbody>().isKinematic = true;
-                    //We are setting useGravity as false to control the movement via code
-                    grabbedTransform.GetComponent<Rigidbody>().useGravity = false;
-                    //We are setting the gameobject to which this script is attached as the parent of the grabbed 
-                    //gameobject so that the movement of the gameobject to which this script is attached is reflected
-                    //to the child (the grabbed game object is anchored to this gameobject)
-                    grabbedTransform.parent = transform; 
+                        grabbedTransform = hitInfo.transform;
+                        //We are setting isKinematic as true to control the movement via code
+                        grabbedTransform.GetComponent<Rigidbody>().isKinematic = true;
+                        //We are setting useGravity as false to control the movement via code
+                        grabbedTransform.GetComponent<Rigidbody>().useGravity = false;
+                        //We are setting the gameobject to which this script is attached as the parent of the grabbed 
+                        //gameobject so that the movement of the gameobject to which this script is attached is reflected
+                        //to the child (the grabbed game object is anchored to this gameobject)
+                        grabbedTransform.parent = transform;
+                    }
                 }
             }
+
         }
 
         //If the left mouse button is released, we'll revert the changes to release the object
@@ -300,10 +305,93 @@ public class EmulateGrab : MonoBehaviour
         }
         return true;
     }
-    
-    bool isWind()
-    {
 
-        return true;
+    void winConditionChecking()
+    {
+        bool playerWin = false;
+        bool botWin = false;
+        if (playSpace[0] == 1 && playSpace[1] == 1 && playSpace[2] == 1 ||
+            playSpace[3] == 1 && playSpace[4] == 1 && playSpace[5] == 1 ||
+            playSpace[6] == 1 && playSpace[7] == 1 && playSpace[8] == 1 ||
+            playSpace[0] == 1 && playSpace[3] == 1 && playSpace[6] == 1 ||
+            playSpace[1] == 1 && playSpace[4] == 1 && playSpace[7] == 1 ||
+            playSpace[2] == 1 && playSpace[5] == 1 && playSpace[8] == 1 ||
+            playSpace[0] == 1 && playSpace[4] == 1 && playSpace[8] == 1 ||
+            playSpace[2] == 1 && playSpace[4] == 1 && playSpace[6] == 1
+            )
+        {
+            Debug.Log("Player");
+            playerWin = true;
+            playerFirst = false;
+            delayTimeCounter = true;
+
+
+        }
+
+        if (playSpace[0] == 2 && playSpace[1] == 2 && playSpace[2] == 2 ||
+            playSpace[3] == 2 && playSpace[4] == 2 && playSpace[5] == 2 ||
+            playSpace[6] == 2 && playSpace[7] == 2 && playSpace[8] == 2 ||
+            playSpace[0] == 2 && playSpace[3] == 2 && playSpace[6] == 2 ||
+            playSpace[1] == 2 && playSpace[4] == 2 && playSpace[7] == 2 ||
+            playSpace[2] == 2 && playSpace[5] == 2 && playSpace[8] == 2 ||
+            playSpace[0] == 2 && playSpace[4] == 2 && playSpace[8] == 2 ||
+            playSpace[2] == 2 && playSpace[4] == 2 && playSpace[6] == 2
+            )
+        {
+            Debug.Log("Bot");
+            botWin = true;
+            //playerFirst = true;
+            delayTimeCounter = true;
+        }
+        
+        if (turnCount == 9 && playerWin == false && botWin == false
+            )
+        {
+            Debug.Log("Draw");
+            delayTimeCounter = true;
+        }
+        
+        if (playerFirst == false)
+        {
+            AITurnFirst();
+            playerFirst = true;
+        }
+    }
+
+    void resetGame()
+    {
+        turnCount = 0;
+        foreach (GameObject X in Xs)
+        {
+            X.SetActive(false);
+        }
+        foreach (GameObject O in Os)
+        {
+            O.SetActive(false);
+        }
+        for (int i = 0; i < playSpace.Length; i++)
+        {
+            playSpace[i] = 0;
+        }
+    }
+
+
+    void AITurnFirst()
+    {
+        int movePosition = Random.Range(0, 8);
+        if (playSpace[movePosition] == 0)
+        {
+            Os[movePosition].SetActive(true);
+            turnCount++;
+            playSpace[movePosition] = 2;
+        }
+    }
+
+
+    IEnumerator delayReset()
+    {
+        yield return new WaitForSeconds(2.0f);
+        resetGame();
+        delayTimeCounter = false;
     }
 }
