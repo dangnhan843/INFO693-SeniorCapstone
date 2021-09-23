@@ -666,6 +666,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   zSpeed: 4.5
   rotationSpeedMultiplier: 2
+  turnCount: 0
+  playerFirst: 1
   Os:
   - {fileID: 422872826}
   - {fileID: 384440215}
@@ -2614,31 +2616,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13a8de3b82e7e56478659853fd971b5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerTurn: 1
-  gameEnded: 0
-  playerWon: 0
-  drawGame: 0
-  AnswerList: []
-  Os:
-  - {fileID: 422872826}
-  - {fileID: 384440215}
-  - {fileID: 1040324553}
-  - {fileID: 1646816308}
-  - {fileID: 1819891937}
-  - {fileID: 896354980}
-  - {fileID: 1521225220}
-  - {fileID: 478774758}
-  - {fileID: 415120687}
-  Xs:
-  - {fileID: 951002019}
-  - {fileID: 540738348}
-  - {fileID: 1935141065}
-  - {fileID: 1598715956}
-  - {fileID: 118426306}
-  - {fileID: 1636598211}
-  - {fileID: 1433101618}
-  - {fileID: 1131262850}
-  - {fileID: 600879225}
 --- !u!4 &975056820
 Transform:
   m_ObjectHideFlags: 0
@@ -4774,6 +4751,34 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 100012, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100022, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100024, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100026, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100028, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100030, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 100032, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 100196, guid: 97690acc6120add438290857b65a2815, type: 3}
       propertyPath: m_Name
       value: VirtualHuman
