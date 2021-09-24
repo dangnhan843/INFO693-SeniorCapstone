@@ -19,6 +19,9 @@ public class EmulateGrab : MonoBehaviour
     float delayTime = 1.0f;
     private bool delayTimeCounter = false;
 
+    string tileName ;
+    int tileNumberX ;
+
 
     private bool isGrabbing = false;             //A control variable that stores if the user is grabbing anything
     private Transform grabbedTransform;          //A variable to hold the grabbed object's transform
@@ -30,6 +33,7 @@ public class EmulateGrab : MonoBehaviour
     public bool playerFirst = true;
     bool playerTurn = true;
     bool playerWin = false;
+    //bool botTurn = false;
     bool botWin = false;
 
     bool delayBotTime = false;
@@ -42,7 +46,7 @@ public class EmulateGrab : MonoBehaviour
 
     void Start()
     {
-        AITurnFirst();
+        //AITurnFirst(2.0f);
         DoDelayReset(0.0f);
         //Debug.Log(playerFirst.ToString());
         TTTs = GameObject.FindGameObjectsWithTag("TTTSpace");
@@ -62,7 +66,6 @@ public class EmulateGrab : MonoBehaviour
             StartCoroutine(delayBotMove(tempMovePosition));
             */
         //winConditionChecking();
-        Debug.Log(turnCount.ToString());
 
         if (Input.GetKey(KeyCode.C)) //When the C key is pressed, we'll rotate the controller with the mouse movements
         {
@@ -120,9 +123,8 @@ public class EmulateGrab : MonoBehaviour
             }
         }
         
-        if (playerFirst == true)
+        if (playerTurn == true)
         {
-            
             if (Input.GetKeyDown(KeyCode.Mouse0)) //If we are pressing down the left mouse button
             {
                 RaycastHit hitInfo;
@@ -133,8 +135,8 @@ public class EmulateGrab : MonoBehaviour
                     if (Physics.Raycast(new Ray(transform.position, transform.forward), out hitInfo))
                     {
 
-                        string tileName = CheckHitName(hitInfo);
-                        int tileNumberX = CheckHitNumber(hitInfo);
+                        tileName = CheckHitName(hitInfo);
+                        tileNumberX = CheckHitNumber(hitInfo);
                         if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] == 0) //If we are hitting a grabbable object
                         {
                             //clickTransform = hitInfo.transform;
@@ -144,50 +146,7 @@ public class EmulateGrab : MonoBehaviour
                             Xs[tileNumberX - 1].SetActive(true);
                             //Debug.Log(tileNumberX - 1);
                             winConditionChecking();
-                            if (playerWin == false)
-                            {
-                                bool tempGameEnd = checkEndMove(playSpace);
-                                bool AIMove = true;
-                                if (delayBotTime == false)
-                                {
-                                    if (!tempGameEnd)
-                                    {
-                                        while (AIMove)
-                                        {
-                                            int movePosition = Random.Range(0, 8);
-                                            if (movePosition != (tileNumberX - 1))
-                                            {
-                                                if (playSpace[movePosition] == 0)
-                                                {
-
-                                                    
-                                                    tempMovePosition = movePosition;
-                                                    //Debug.Log(tempMovePosition.ToString());
-                                                    delayBotTime = true;
-                                                    //turnCount++;
-                                                    //Debug.Log(turnCount.ToString());
-                                                    DoDelayAction(movePosition, 2.0f);
-                                                    //delayBotMove(movePosition);
-
-                                                    //winConditionChecking();
-
-
-                                                    /*
-                                                    Os[movePosition].SetActive(true);                                               
-                                                    turnCount++;
-                                                    playSpace[movePosition] = 2;
-                                                    winConditionChecking();
-                                                    */
-                                                    AIMove = false;
-                                                    //winConditionChecking();
-
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                }
-                            }
+                            playerTurn = false;
 
 
                         }
@@ -211,12 +170,36 @@ public class EmulateGrab : MonoBehaviour
                 }
 
             }
+            
         }
         else
         {
-            //Debug.Log("here");
-            AITurnFirst();
+            bool tempGameEnd = checkEndMove(playSpace);
+            bool AIMove = true;
+            if (delayBotTime == false)
+            {
+                if (!tempGameEnd)
+                {
+                    while (AIMove)
+                    {
+                        int movePosition = Random.Range(0, 8);
+                        if (movePosition != (tileNumberX - 1))
+                        {
+                            if (playSpace[movePosition] == 0)
+                            {
+                                tempMovePosition = movePosition;
+                                delayBotTime = true;
+                                DoDelayAction(movePosition, 2.0f);
+                                AIMove = false;
+                            }
+                        }
+
+                    }
+                }
+            }
+            playerTurn = true;
         }
+        
 
         //Debug.Log(turnCount.ToString());
 
@@ -375,7 +358,7 @@ public class EmulateGrab : MonoBehaviour
             playerWin = true;
             //playerFirst = false;
             //delayTimeCounter = true;
-            DoDelayReset(1.0f);
+            DoDelayReset(2.0f);
 
         }
 
@@ -393,7 +376,7 @@ public class EmulateGrab : MonoBehaviour
             botWin = true;
             //playerFirst = true;
             //delayTimeCounter = true;
-            DoDelayReset(1.0f);
+            DoDelayReset(2.0f);
         }
 
         /*
@@ -412,16 +395,11 @@ public class EmulateGrab : MonoBehaviour
             }
         }
         */
-        if (turnCount >=9)
-        {
-            Debug.Log(playerWin.ToString());
-            Debug.Log(botWin.ToString());
-        }
         if (turnCount>= 9 && playerWin == false && botWin == false
             )
         {
             Debug.Log("Draw");
-            DoDelayReset(1.0f);
+            DoDelayReset(2.0f);
             /*
             Debug.Log("Draw");
             delayTimeCounter = true;
@@ -430,8 +408,8 @@ public class EmulateGrab : MonoBehaviour
         
         if (playerFirst == false)
         {
-            Debug.Log("player first");
-            AITurnFirst();
+            //Debug.Log("player first");
+            //AITurnFirst(2.0f)
             playerFirst = true;
         }
         
@@ -468,14 +446,21 @@ public class EmulateGrab : MonoBehaviour
         }
 
         playerWin = false;
-        //playerWin = false;
+        botWin = false;
         delayTimeCounter = false;
         tempMovePosition = 10;
     }
     
 
-    void AITurnFirst()
+    void AITurnFirst(float delayTime)
     {
+        StartCoroutine(delayAITurn(delayTime));
+
+    }
+
+    IEnumerator delayAITurn(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
         int movePosition = Random.Range(0, 8);
         if (playSpace[movePosition] == 0)
         {
@@ -486,7 +471,7 @@ public class EmulateGrab : MonoBehaviour
         }
         playerFirst = true;
     }
-    
+
     /*
     IEnumerator delayReset()
     {
@@ -533,6 +518,7 @@ public class EmulateGrab : MonoBehaviour
         {
             //Debug.Log("Moving");
             //yield return new WaitForSeconds(0.0f);
+
             Os[movePosition].SetActive(true);
 
             //Debug.Log(turnCount.ToString());
