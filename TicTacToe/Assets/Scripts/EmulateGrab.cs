@@ -35,6 +35,7 @@ public class EmulateGrab : MonoBehaviour
     bool playerWin = false;
     //bool botTurn = false;
     bool botWin = false;
+    bool AIMove = false;
 
     bool delayBotTime = false;
     private int tempMovePosition =10;
@@ -142,36 +143,18 @@ public class EmulateGrab : MonoBehaviour
                             //clickTransform = hitInfo.transform;
                             playSpace[tileNumberX - 1] = 1;
                             turnCount++;
-                            
+
                             Xs[tileNumberX - 1].SetActive(true);
                             //Debug.Log(tileNumberX - 1);
                             winConditionChecking();
                             playerTurn = false;
-
-
-                        }
-                        //winConditionChecking();
-
-                        if (hitInfo.transform.tag == "Grabbable") //If we are hitting a grabbable object
-                        {
-                            isGrabbing = true; //We turn the control variable to true indicating that we are grabbing
-
-                            grabbedTransform = hitInfo.transform;
-                            //We are setting isKinematic as true to control the movement via code
-                            grabbedTransform.GetComponent<Rigidbody>().isKinematic = true;
-                            //We are setting useGravity as false to control the movement via code
-                            grabbedTransform.GetComponent<Rigidbody>().useGravity = false;
-                            //We are setting the gameobject to which this script is attached as the parent of the grabbed 
-                            //gameobject so that the movement of the gameobject to which this script is attached is reflected
-                            //to the child (the grabbed game object is anchored to this gameobject)
-                            grabbedTransform.parent = transform;
-                        }
+                            BotMove(); // switch here
+                        }      
                     }
                 }
-
             }
-            
         }
+        /*
         else
         {
             bool tempGameEnd = checkEndMove(playSpace);
@@ -187,6 +170,7 @@ public class EmulateGrab : MonoBehaviour
                         {
                             if (playSpace[movePosition] == 0)
                             {
+                                Debug.Log("here");
                                 tempMovePosition = movePosition;
                                 delayBotTime = true;
                                 DoDelayAction(movePosition, 2.0f);
@@ -199,6 +183,7 @@ public class EmulateGrab : MonoBehaviour
             }
             playerTurn = true;
         }
+        */
         
 
         //Debug.Log(turnCount.ToString());
@@ -372,7 +357,7 @@ public class EmulateGrab : MonoBehaviour
             playSpace[2] == 2 && playSpace[4] == 2 && playSpace[6] == 2
             )
         {
-            //Debug.Log("Bot Win");
+            Debug.Log("Bot Win");
             botWin = true;
             //playerFirst = true;
             //delayTimeCounter = true;
@@ -460,8 +445,10 @@ public class EmulateGrab : MonoBehaviour
 
     IEnumerator delayAITurn(float delayTime)
     {
-        yield return new WaitForSeconds(delayTime);
         int movePosition = Random.Range(0, 8);
+        Debug.Log("here");
+        yield return new WaitForSeconds(delayTime);
+        //int movePosition = Random.Range(0, 8);
         if (playSpace[movePosition] == 0)
         {
             Os[movePosition].SetActive(true);
@@ -528,5 +515,37 @@ public class EmulateGrab : MonoBehaviour
             winConditionChecking();
         }
         //Do the action after the delay time has finished.
+    }
+
+
+    void BotMove()
+    {
+        {
+            bool tempGameEnd = checkEndMove(playSpace);
+            bool AIMove = true;
+            if (delayBotTime == false)
+            {
+                if (!tempGameEnd)
+                {
+                    while (AIMove)
+                    {
+                        int movePosition = Random.Range(0, 8);
+                        if (movePosition != (tileNumberX - 1))
+                        {
+                            if (playSpace[movePosition] == 0)
+                            {
+                                Debug.Log("here");
+                                tempMovePosition = movePosition;
+                                delayBotTime = true;
+                                DoDelayAction(movePosition, 2.0f);
+                                AIMove = false;
+                            }
+                        }
+
+                    }
+                }
+            }
+            playerTurn = true;
+        }
     }
 }
