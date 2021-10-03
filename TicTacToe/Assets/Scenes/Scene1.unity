@@ -869,6 +869,7 @@ MonoBehaviour:
   - {fileID: 600879225}
   playSpace: 000000000000000000000000000000000000000000000000000000000000000000000000
   TTTs: []
+  animFromBot: {fileID: 0}
 --- !u!1 &208483543
 GameObject:
   m_ObjectHideFlags: 0
@@ -5752,6 +5753,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: VirtualHuman
       objectReference: {fileID: 0}
+    - target: {fileID: 100196, guid: 97690acc6120add438290857b65a2815, type: 3}
+      propertyPath: m_TagString
+      value: Bot
+      objectReference: {fileID: 0}
     - target: {fileID: 400008, guid: 97690acc6120add438290857b65a2815, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.023019211
@@ -8296,6 +8301,19 @@ MonoBehaviour:
   - {fileID: 1396975220}
   - {fileID: 1383040105}
   - {fileID: 720890843}
+--- !u!114 &1885310252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1885310247}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8ad4a9a960cb6a4ca7c70ca0ac87726, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  anim: {fileID: 0}
 --- !u!1 &1886144387
 GameObject:
   m_ObjectHideFlags: 0

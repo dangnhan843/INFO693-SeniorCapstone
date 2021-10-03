@@ -45,8 +45,13 @@ public class EmulateGrab : MonoBehaviour
     public int[] playSpace;
     public GameObject[] TTTs;
 
+
+    public Animator animFromBot;
+
+
     void Start()
     {
+        
         //AITurnFirst(2.0f);
         DoDelayReset(0.0f);
         //Debug.Log(playerFirst.ToString());
@@ -55,6 +60,9 @@ public class EmulateGrab : MonoBehaviour
         {
             TTT.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
+
+        animFromBot = GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>();
+        
     }
 
     void Update()
@@ -73,6 +81,7 @@ public class EmulateGrab : MonoBehaviour
             controllerYaw += controllerSpeedHorizontal * Input.GetAxis("Mouse X") * rotationSpeedMultiplier;
             controllerPitch += controllerSpeedVertical * Input.GetAxis("Mouse Y") * -rotationSpeedMultiplier;
             transform.localRotation = Quaternion.Euler(controllerPitch, controllerYaw, 0.0f);
+            
         }
 
         //We are casting a ray from the controller to check for hits with grabbable objects
@@ -429,7 +438,7 @@ public class EmulateGrab : MonoBehaviour
         {
             playerFirst = true;
         }
-
+        botResetAnimation();
         playerWin = false;
         botWin = false;
         delayTimeCounter = false;
@@ -446,7 +455,8 @@ public class EmulateGrab : MonoBehaviour
     IEnumerator delayAITurn(float delayTime)
     {
         int movePosition = Random.Range(0, 8);
-        Debug.Log("here");
+        //BotAnimation(movePosition);
+        //Debug.Log("here");
         yield return new WaitForSeconds(delayTime);
         //int movePosition = Random.Range(0, 8);
         if (playSpace[movePosition] == 0)
@@ -500,6 +510,7 @@ public class EmulateGrab : MonoBehaviour
     IEnumerator delayBotMove(int movePosition,float delayTime)
     {
         //Wait for the specified delay time before continuing.
+        
         yield return new WaitForSeconds(delayTime);
         if (tempMovePosition != 10)
         {
@@ -512,6 +523,7 @@ public class EmulateGrab : MonoBehaviour
             playSpace[movePosition] = 2;
             delayBotTime = false;
             turnCount++;
+            botResetAnimation();
             winConditionChecking();
         }
         //Do the action after the delay time has finished.
@@ -534,9 +546,10 @@ public class EmulateGrab : MonoBehaviour
                         {
                             if (playSpace[movePosition] == 0)
                             {
-                                Debug.Log("here");
                                 tempMovePosition = movePosition;
                                 delayBotTime = true;
+                                BotAnimation(movePosition);
+                                //DoDelayResetAnime(1.0f);
                                 DoDelayAction(movePosition, 2.0f);
                                 AIMove = false;
                             }
@@ -547,5 +560,76 @@ public class EmulateGrab : MonoBehaviour
             }
             playerTurn = true;
         }
+    }
+
+
+    void BotAnimation(int movePosition)
+    {
+        Debug.Log(movePosition);
+        switch (movePosition)
+        {
+            case 0:
+                Debug.Log("Move1");
+                animFromBot.SetBool("Move1", true);
+                break;
+            case 1:
+                Debug.Log("Move2");
+                animFromBot.SetBool("Move2", true);
+                break;
+            case 2:
+                Debug.Log("Move3");
+                animFromBot.SetBool("Move3", true);
+                break;
+            case 3:
+                Debug.Log("Move4");
+                animFromBot.SetBool("Move4", true);
+                break;
+            case 4:
+                Debug.Log("Move5");
+                animFromBot.SetBool("Move5", true);
+                break;
+            case 5:
+                Debug.Log("Move6");
+                animFromBot.SetBool("Move6", true);
+                break;
+            case 6:
+                Debug.Log("Move7");
+                animFromBot.SetBool("Move7", true);
+                break;
+            case 7:
+                Debug.Log("Move8");
+                animFromBot.SetBool("Move8", true);
+                break;
+            case 8:
+                Debug.Log("Move9");
+                animFromBot.SetBool("Move9", true);
+                break;
+        }
+        //botResetAnimation();
+    }
+    void botResetAnimation()
+    {
+        animFromBot.SetBool("Move1", false);
+        animFromBot.SetBool("Move2", false);
+        animFromBot.SetBool("Move3", false);
+        animFromBot.SetBool("Move4", false);
+        animFromBot.SetBool("Move5", false);
+        animFromBot.SetBool("Move6", false);
+        animFromBot.SetBool("Move7", false);
+        animFromBot.SetBool("Move8", false);
+        animFromBot.SetBool("Move9", false);
+    }
+
+    void DoDelayResetAnime(float delayTime)
+    {
+        StartCoroutine(DelayResetAnime(delayTime));
+    }
+
+    IEnumerator DelayResetAnime(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+        animFromBot.SetBool("Move1", false);
+        animFromBot.SetBool("Move2", false);
+        animFromBot.SetBool("Move3", false);
     }
 }

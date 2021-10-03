@@ -10,6 +10,7 @@ TagManager:
   - X
   - O
   - TTTSpace
+  - Bot
   layers:
   - Default
   - TransparentFX
