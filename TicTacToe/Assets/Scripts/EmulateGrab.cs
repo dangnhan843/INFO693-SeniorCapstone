@@ -33,10 +33,13 @@ public class EmulateGrab : MonoBehaviour
     public bool playerFirst = true;
     bool playerTurn = true;
     bool playerWin = false;
-    //bool botTurn = false;
+    bool isGameEnd = false;
     bool botWin = false;
-    bool AIMove = false;
+    bool BotTurn = false;
 
+
+    float delayBotMoveTime = 1.1f;
+    float delayResetTime = 3.0f;
     bool delayBotTime = false;
     private int tempMovePosition =10;
 
@@ -133,10 +136,11 @@ public class EmulateGrab : MonoBehaviour
             }
         }
         
-        if (playerTurn == true)
+        if (playerTurn == true && BotTurn == false && isGameEnd == false)
         {
             if (Input.GetKeyDown(KeyCode.Mouse0)) //If we are pressing down the left mouse button
             {
+                Debug.Log(BotTurn.ToString());
                 RaycastHit hitInfo;
 
 
@@ -157,22 +161,23 @@ public class EmulateGrab : MonoBehaviour
                             //Debug.Log(tileNumberX - 1);
                             winConditionChecking();
                             playerTurn = false;
-                            BotMove(); // switch here
+                            BotTurn = true;
+                            //BotMove(); // switch here
                         }      
                     }
                 }
             }
         }
-        /*
-        else
+        
+        if (playerTurn == false && BotTurn == true && isGameEnd == false)
         {
             bool tempGameEnd = checkEndMove(playSpace);
-            bool AIMove = true;
+            BotTurn = true;
             if (delayBotTime == false)
             {
                 if (!tempGameEnd)
                 {
-                    while (AIMove)
+                    while (BotTurn)
                     {
                         int movePosition = Random.Range(0, 8);
                         if (movePosition != (tileNumberX - 1))
@@ -182,8 +187,9 @@ public class EmulateGrab : MonoBehaviour
                                 Debug.Log("here");
                                 tempMovePosition = movePosition;
                                 delayBotTime = true;
-                                DoDelayAction(movePosition, 2.0f);
-                                AIMove = false;
+                                BotAnimation(movePosition);
+                                DoDelayAction(movePosition, delayBotMoveTime);
+                                BotTurn = false;
                             }
                         }
 
@@ -192,8 +198,8 @@ public class EmulateGrab : MonoBehaviour
             }
             playerTurn = true;
         }
-        */
         
+
 
         //Debug.Log(turnCount.ToString());
 
@@ -349,10 +355,11 @@ public class EmulateGrab : MonoBehaviour
             )
         {
             Debug.Log("Player Win");
+            isGameEnd = true;
             playerWin = true;
             //playerFirst = false;
             //delayTimeCounter = true;
-            DoDelayReset(2.0f);
+            DoDelayReset(delayResetTime);
 
         }
 
@@ -367,10 +374,11 @@ public class EmulateGrab : MonoBehaviour
             )
         {
             Debug.Log("Bot Win");
+            isGameEnd = true;
             botWin = true;
             //playerFirst = true;
             //delayTimeCounter = true;
-            DoDelayReset(2.0f);
+            DoDelayReset(delayResetTime);
         }
 
         /*
@@ -393,7 +401,8 @@ public class EmulateGrab : MonoBehaviour
             )
         {
             Debug.Log("Draw");
-            DoDelayReset(2.0f);
+            isGameEnd = true;
+            DoDelayReset(delayResetTime);
             /*
             Debug.Log("Draw");
             delayTimeCounter = true;
@@ -439,8 +448,19 @@ public class EmulateGrab : MonoBehaviour
             playerFirst = true;
         }
         botResetAnimation();
+        if (playerWin == true)
+        {
+            BotTurn = true;
+            playerTurn = false;
+        }
+        if (botWin == true)
+        {
+            BotTurn = false;
+            playerTurn = true;
+        }
         playerWin = false;
         botWin = false;
+        isGameEnd = false;
         delayTimeCounter = false;
         tempMovePosition = 10;
     }
@@ -466,6 +486,7 @@ public class EmulateGrab : MonoBehaviour
             Debug.Log(turnCount.ToString());
             playSpace[movePosition] = 2;
         }
+        yield return new WaitForSeconds(delayTime);
         playerFirst = true;
     }
 
@@ -534,12 +555,12 @@ public class EmulateGrab : MonoBehaviour
     {
         {
             bool tempGameEnd = checkEndMove(playSpace);
-            bool AIMove = true;
+            //BotTurn = true;
             if (delayBotTime == false)
             {
                 if (!tempGameEnd)
                 {
-                    while (AIMove)
+                    while (BotTurn)
                     {
                         int movePosition = Random.Range(0, 8);
                         if (movePosition != (tileNumberX - 1))
@@ -550,8 +571,8 @@ public class EmulateGrab : MonoBehaviour
                                 delayBotTime = true;
                                 BotAnimation(movePosition);
                                 //DoDelayResetAnime(1.0f);
-                                DoDelayAction(movePosition, 2.0f);
-                                AIMove = false;
+                                DoDelayAction(movePosition, delayBotMoveTime);
+                                BotTurn = false;
                             }
                         }
 
@@ -565,43 +586,43 @@ public class EmulateGrab : MonoBehaviour
 
     void BotAnimation(int movePosition)
     {
-        Debug.Log(movePosition);
+        //Debug.Log(movePosition);
         switch (movePosition)
         {
             case 0:
-                Debug.Log("Move1");
+                //Debug.Log("Move1");
                 animFromBot.SetBool("Move1", true);
                 break;
             case 1:
-                Debug.Log("Move2");
+                //Debug.Log("Move2");
                 animFromBot.SetBool("Move2", true);
                 break;
             case 2:
-                Debug.Log("Move3");
+                //Debug.Log("Move3");
                 animFromBot.SetBool("Move3", true);
                 break;
             case 3:
-                Debug.Log("Move4");
+                //Debug.Log("Move4");
                 animFromBot.SetBool("Move4", true);
                 break;
             case 4:
-                Debug.Log("Move5");
+                //Debug.Log("Move5");
                 animFromBot.SetBool("Move5", true);
                 break;
             case 5:
-                Debug.Log("Move6");
+                //Debug.Log("Move6");
                 animFromBot.SetBool("Move6", true);
                 break;
             case 6:
-                Debug.Log("Move7");
+                //Debug.Log("Move7");
                 animFromBot.SetBool("Move7", true);
                 break;
             case 7:
-                Debug.Log("Move8");
+                //Debug.Log("Move8");
                 animFromBot.SetBool("Move8", true);
                 break;
             case 8:
-                Debug.Log("Move9");
+                //Debug.Log("Move9");
                 animFromBot.SetBool("Move9", true);
                 break;
         }
