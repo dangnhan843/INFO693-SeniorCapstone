@@ -29,7 +29,7 @@ public class EmulateGrab : MonoBehaviour
     public float zSpeed = 4.5f;                  //A variable to control the speed of movement in z-axis (forward/backward)
     public float rotationSpeedMultiplier = 2.0f; //A variable to increase the rotational speed for the controller
     private Transform hitTransform;              //A variable to hold the hit object's transform
-    public int turnCount = 0;
+    //public int turnCount = 0;
     public bool playerFirst = true;
     
     bool playerTurn = true;
@@ -40,6 +40,7 @@ public class EmulateGrab : MonoBehaviour
     bool BotTurn = false;
     bool PlayerTurnFirst = false;
     bool delayPlayerTurn = false;
+    bool hardMode = false;
 
     float delayBotMoveTime = 1.1f;
     float delayResetTime = 3.0f;
@@ -66,7 +67,7 @@ public class EmulateGrab : MonoBehaviour
         {
             TTT.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
-
+        Debug.Log(playSpace[0].ToString());
         animFromBot = GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>();
         
     }
@@ -160,7 +161,7 @@ public class EmulateGrab : MonoBehaviour
                             {
                                 //clickTransform = hitInfo.transform;
                                 playSpace[tileNumberX - 1] = 1;
-                                turnCount++;
+                                //turnCount++;
 
                                 Xs[tileNumberX - 1].SetActive(true);
                                 //Debug.Log(tileNumberX - 1);
@@ -176,76 +177,96 @@ public class EmulateGrab : MonoBehaviour
             }
         }
 
-        /* AI minmax not working
-        if (playerTurn == false && BotTurn == true && isGameEnd == false)
+        if (Input.GetKeyDown(KeyCode.H))
         {
-            bool tempGameEnd = checkEndMove(playSpace);
-            BotTurn = true;
-            if (delayBotTime == false)
+            switch (hardMode)
             {
-                if (!tempGameEnd)
+                case true:
+                    Debug.Log("Hard mode: off");
+                    hardMode = false;
+                    break;
+                case false:
+                    Debug.Log("Hard mode: on");
+                    hardMode = true;
+                    break;
+            }
+        }
+
+        // AI minmax not working
+        if (hardMode == true)
+        {
+            if (playerTurn == false && BotTurn == true && isGameEnd == false)
+            {
+                bool tempGameEnd = checkEndMove(playSpace);
+                BotTurn = true;
+                if (delayBotTime == false)
                 {
-                    float bestScore = -Mathf.Infinity;
-                    int bestMove = 0;
-                    for (int i = 0; i < playSpace.Length; i++)
+                    if (!tempGameEnd)
                     {
-                        if (playSpace[i] == 0 )
+                        float bestScore = -Mathf.Infinity;
+                        int bestMove = 0;
+                        for (int i = 0; i < playSpace.Length; i++)
                         {
-                            playSpace[i] = 2;
-                            float tempScore = Minimax(playSpace, 0, false);
-                            playSpace[i] = 0;
-                            if (tempScore > bestScore)
+                            if (playSpace[i] == 0)
                             {
-                                bestScore = tempScore;
-                                bestMove = i;
+                                //Debug.Log(i.ToString());
+                                playSpace[i] = 2;
+                                float tempScore = Minimax(playSpace, 0, false);
+                                playSpace[i] = 0;
+                                if (tempScore > bestScore)
+                                {
+                                    bestScore = tempScore;
+                                    bestMove = i;
+                                }
                             }
                         }
+                        //Debug.Log(bestMove.ToString());
+                        int MovePosition = (int)bestMove;
+                        tempMovePosition = MovePosition;
+                        delayBotTime = true;
+                        BotAnimation(MovePosition);
+                        DoDelayBotMove(MovePosition, delayBotMoveTime);
+                        BotTurn = false;
                     }
-                    Debug.Log(bestMove.ToString());
-                    int MovePosition = (int)bestMove;
-                    tempMovePosition = MovePosition;
-                    delayBotTime = true;
-                    BotAnimation(MovePosition);
-                    DoDelayBotMove(MovePosition, delayBotMoveTime);
-                    BotTurn = false;
                 }
+                playerTurn = true;
             }
-            playerTurn = true;
         }
-        */
+
 
         //orign bot move
-        if (playerTurn == false && BotTurn == true && isGameEnd == false)
-        {          
-            bool tempGameEnd = checkEndMove(playSpace);
-            BotTurn = true;
-            if (delayBotTime == false)
+        else
+        {
+            if (playerTurn == false && BotTurn == true && isGameEnd == false)
             {
-                if (!tempGameEnd)
+                bool tempGameEnd = checkEndMove(playSpace);
+                BotTurn = true;
+                if (delayBotTime == false)
                 {
-                    while (BotTurn)
+                    if (!tempGameEnd)
                     {
-                        int movePosition = Random.Range(0, 8);
-
-                        if (movePosition != (tileNumberX - 1))
+                        while (BotTurn)
                         {
-                            if (playSpace[movePosition] == 0)
-                            {
-                                Debug.Log("here");
-                                tempMovePosition = movePosition;
-                                delayBotTime = true;
-                                BotAnimation(movePosition);
-                                DoDelayBotMove(movePosition, delayBotMoveTime);
-                                BotTurn = false;
-                            }
-                        }
+                            int movePosition = Random.Range(0, 8);
 
+                            if (movePosition != (tileNumberX - 1))
+                            {
+                                if (playSpace[movePosition] == 0)
+                                {
+                                    tempMovePosition = movePosition;
+                                    delayBotTime = true;
+                                    BotAnimation(movePosition);
+                                    DoDelayBotMove(movePosition, delayBotMoveTime);
+                                    BotTurn = false;
+                                }
+                            }
+
+                        }
                     }
                 }
+                playerTurn = true;
             }
-            playerTurn = true;
         }
-        
 
 
         //Debug.Log(turnCount.ToString());
@@ -390,18 +411,11 @@ public class EmulateGrab : MonoBehaviour
 
     void winConditionChecking()
     {
+        string winner = GameWinner();
         //Debug.Log("Win Check");
-        if (playSpace[0] == 1 && playSpace[1] == 1 && playSpace[2] == 1 ||
-            playSpace[3] == 1 && playSpace[4] == 1 && playSpace[5] == 1 ||
-            playSpace[6] == 1 && playSpace[7] == 1 && playSpace[8] == 1 ||
-            playSpace[0] == 1 && playSpace[3] == 1 && playSpace[6] == 1 ||
-            playSpace[1] == 1 && playSpace[4] == 1 && playSpace[7] == 1 ||
-            playSpace[2] == 1 && playSpace[5] == 1 && playSpace[8] == 1 ||
-            playSpace[0] == 1 && playSpace[4] == 1 && playSpace[8] == 1 ||
-            playSpace[2] == 1 && playSpace[4] == 1 && playSpace[6] == 1
-            )
+        if (winner == "player")
         {
-            Debug.Log("Player Win");
+            //Debug.Log("Player Win");
             isGameEnd = true;
             playerWin = true;
             //playerFirst = false;
@@ -410,17 +424,9 @@ public class EmulateGrab : MonoBehaviour
 
         }
 
-        if (playSpace[0] == 2 && playSpace[1] == 2 && playSpace[2] == 2 ||
-            playSpace[3] == 2 && playSpace[4] == 2 && playSpace[5] == 2 ||
-            playSpace[6] == 2 && playSpace[7] == 2 && playSpace[8] == 2 ||
-            playSpace[0] == 2 && playSpace[3] == 2 && playSpace[6] == 2 ||
-            playSpace[1] == 2 && playSpace[4] == 2 && playSpace[7] == 2 ||
-            playSpace[2] == 2 && playSpace[5] == 2 && playSpace[8] == 2 ||
-            playSpace[0] == 2 && playSpace[4] == 2 && playSpace[8] == 2 ||
-            playSpace[2] == 2 && playSpace[4] == 2 && playSpace[6] == 2
-            )
+        if (winner == "bot")
         {
-            Debug.Log("Bot Win");
+            //Debug.Log("Bot Win");
             isGameEnd = true;
             botWin = true;
             //playerFirst = true;
@@ -428,23 +434,8 @@ public class EmulateGrab : MonoBehaviour
             DoDelayReset(delayResetTime);
         }
 
-        /*
-        bool isDraw = false;
-        for ( int i = 0; i> playSpace.Length; i++)
-        {
-            int tempCount = 0;
-            if (playSpace[i] == 0)
-            {
-                isDraw = false;
-
-            }
-            else
-            {
-                isDraw = true;
-            }
-        }
-        */
-        if (turnCount>= 9 && playerWin == false && botWin == false
+        bool IsNotPlayble = PlayableSpace();
+        if (IsNotPlayble == false && playerWin == false && botWin == false
             )
         {
             Debug.Log("Draw");
@@ -496,7 +487,7 @@ public class EmulateGrab : MonoBehaviour
     IEnumerator resetGame(float delayTime)
     {
         yield return new WaitForSeconds(delayTime);
-        turnCount = 0;
+        //turnCount = 0;
         
         foreach (GameObject X in Xs)
         {
@@ -540,81 +531,15 @@ public class EmulateGrab : MonoBehaviour
                 PlayerTurnFirst = true;
                 break;
         }
-        /* flip win condition
-        if (playerWin == true)
-        {
-            BotTurn = true;
-            playerTurn = false;
-        }
-        if (botWin == true)
-        {
-            BotTurn = false;
-            playerTurn = true;
-        }*/
+
         playerWin = false;
         botWin = false;
+        isDraw = false;
         isGameEnd = false;
         delayTimeCounter = false;
         tempMovePosition = 10;
     }
     
-    /*
-    void AITurnFirst(float delayTime)
-    {
-        StartCoroutine(delayAITurn(delayTime));
-
-    }
-
-    IEnumerator delayAITurn(float delayTime)
-    {
-        int movePosition = Random.Range(0, 8);
-        //BotAnimation(movePosition);
-        //Debug.Log("here");
-        yield return new WaitForSeconds(delayTime);
-        //int movePosition = Random.Range(0, 8);
-        if (playSpace[movePosition] == 0)
-        {
-            Os[movePosition].SetActive(true);
-            turnCount++;
-            Debug.Log(turnCount.ToString());
-            playSpace[movePosition] = 2;
-        }
-        yield return new WaitForSeconds(delayTime);
-        playerFirst = true;
-    }
-    */
-    /*
-    IEnumerator delayReset()
-    {
-        playerWin = false;
-        yield return new WaitForSeconds(2.0f);
-        resetGame();
-        //playerWin = false;
-        delayTimeCounter = false;
-        tempMovePosition = 10;
-    }
-    */
-    /*
-    IEnumerator delayBotMove(int movePosition)
-    {
-        yield return new WaitForSeconds(0.0f);
-        if (tempMovePosition != 10)
-        {
-            //Debug.Log("Moving");
-            //yield return new WaitForSeconds(0.0f);
-            Os[movePosition].SetActive(true);
-            
-            //Debug.Log(turnCount.ToString());
-            playSpace[movePosition] = 2;
-            delayBotTime = false;
-            winConditionChecking();
-        }
-        //Debug.Log("not Moving");
-
-    }
-    */
-
-
 
     void DoDelayBotMove(int movePosition, float delayTime)
     {
@@ -636,46 +561,12 @@ public class EmulateGrab : MonoBehaviour
             //Debug.Log(turnCount.ToString());
             playSpace[movePosition] = 2;
             delayBotTime = false;
-            turnCount++;
+            //turnCount++;
             botResetAnimation();
             winConditionChecking();
         }
         //Do the action after the delay time has finished.
     }
-    /*
-
-    void BotMove()
-    {
-        {
-            bool tempGameEnd = checkEndMove(playSpace);
-            //BotTurn = true;
-            if (delayBotTime == false)
-            {
-                if (!tempGameEnd)
-                {
-                    while (BotTurn)
-                    {
-                        int movePosition = Random.Range(0, 8);
-                        if (movePosition != (tileNumberX - 1))
-                        {
-                            if (playSpace[movePosition] == 0)
-                            {
-                                tempMovePosition = movePosition;
-                                delayBotTime = true;
-                                BotAnimation(movePosition);
-                                //DoDelayResetAnime(1.0f);
-                                DoDelayBotMove(movePosition, delayBotMoveTime);
-                                BotTurn = false;
-                            }
-                        }
-
-                    }
-                }
-            }
-            playerTurn = true;
-        }
-    }
-    */
 
     void BotAnimation(int movePosition)
     {
@@ -749,11 +640,12 @@ public class EmulateGrab : MonoBehaviour
 
     float Minimax(int[] playSpace, int depth, bool isMax)
     {
-        if (botWin)
-            return 1;
-        if (playerWin)
-            return -1;
-        if (isDraw)
+        string winner = GameWinner();
+        if (winner == "bot")
+            return 10;
+        if (winner == "player")
+            return -10;
+        if (winner == "raw")
             return 0;
 
         if (isMax)
@@ -767,6 +659,7 @@ public class EmulateGrab : MonoBehaviour
                     float tempScore = Minimax(playSpace, depth + 1, false);
                     playSpace[i] = 0;
                     bestScore = Mathf.Max(tempScore, bestScore);
+                    
                 }
             }
             return bestScore;
@@ -788,5 +681,55 @@ public class EmulateGrab : MonoBehaviour
         }
     }
 
+    bool PlayableSpace()
+    {
+        for (int i = 0; i < playSpace.Length; i++)
+        {
+            if (playSpace[i] == 0)
+            {
+                return true;
+            }
+        }
+            return false;
+    }
 
+
+    string GameWinner()
+    {
+        string winner ="";
+        if (playSpace[0] == 1 && playSpace[1] == 1 && playSpace[2] == 1 ||
+           playSpace[3] == 1 && playSpace[4] == 1 && playSpace[5] == 1 ||
+           playSpace[6] == 1 && playSpace[7] == 1 && playSpace[8] == 1 ||
+           playSpace[0] == 1 && playSpace[3] == 1 && playSpace[6] == 1 ||
+           playSpace[1] == 1 && playSpace[4] == 1 && playSpace[7] == 1 ||
+           playSpace[2] == 1 && playSpace[5] == 1 && playSpace[8] == 1 ||
+           playSpace[0] == 1 && playSpace[4] == 1 && playSpace[8] == 1 ||
+           playSpace[2] == 1 && playSpace[4] == 1 && playSpace[6] == 1
+           )
+        {
+            winner =  "player";
+
+        }
+
+        if (playSpace[0] == 2 && playSpace[1] == 2 && playSpace[2] == 2 ||
+            playSpace[3] == 2 && playSpace[4] == 2 && playSpace[5] == 2 ||
+            playSpace[6] == 2 && playSpace[7] == 2 && playSpace[8] == 2 ||
+            playSpace[0] == 2 && playSpace[3] == 2 && playSpace[6] == 2 ||
+            playSpace[1] == 2 && playSpace[4] == 2 && playSpace[7] == 2 ||
+            playSpace[2] == 2 && playSpace[5] == 2 && playSpace[8] == 2 ||
+            playSpace[0] == 2 && playSpace[4] == 2 && playSpace[8] == 2 ||
+            playSpace[2] == 2 && playSpace[4] == 2 && playSpace[6] == 2
+            )
+        {
+            winner = "bot";
+        }
+
+        bool IsNotPlayble = PlayableSpace();
+        if (IsNotPlayble == false && playerWin == false && botWin == false
+            )
+        {
+            winner = "raw";
+        }
+        return winner;
+    }
 }
