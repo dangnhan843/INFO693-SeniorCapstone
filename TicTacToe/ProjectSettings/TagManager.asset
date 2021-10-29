@@ -11,6 +11,8 @@ TagManager:
   - O
   - TTTSpace
   - Bot
+  - BotWinTile
+  - PlayerWinTile
   layers:
   - Default
   - TransparentFX

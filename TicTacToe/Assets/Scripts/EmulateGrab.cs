@@ -51,37 +51,43 @@ public class EmulateGrab : MonoBehaviour
     public GameObject[] Xs;
     public int[] playSpace;
     public GameObject[] TTTs;
-
+    public GameObject[] BotWinTile;
+    public GameObject[] PlayerWinTile;
 
     public Animator animFromBot;
 
 
     void Start()
     {
-        
-        //AITurnFirst(2.0f);
         DoDelayReset(0.0f);
-        //Debug.Log(playerFirst.ToString());
+
+        animFromBot = GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>();
+
         TTTs = GameObject.FindGameObjectsWithTag("TTTSpace");
         foreach (GameObject TTT in TTTs)
         {
             TTT.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
-        Debug.Log(playSpace[0].ToString());
-        animFromBot = GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>();
         
+
+        BotWinTile = GameObject.FindGameObjectsWithTag("BotWinTile");
+        foreach (GameObject tile in BotWinTile)
+        {
+            tile.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+
+        PlayerWinTile = GameObject.FindGameObjectsWithTag("PlayerWinTile");
+        foreach (GameObject tile in PlayerWinTile)
+        {
+            tile.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+
+        //BotWinTile[1].GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
     }
 
     void Update()
     {
-        /*
-        if (delayTimeCounter == true)
-            StartCoroutine(delayReset());
-        
-        if (delayBotTime == true)
-            StartCoroutine(delayBotMove(tempMovePosition));
-            */
-        //winConditionChecking();
+        //TTTWinTile[1].GetComponent<SpriteRenderer>().material.color = Color.red;
 
         if (Input.GetKey(KeyCode.C)) //When the C key is pressed, we'll rotate the controller with the mouse movements
         {
@@ -413,6 +419,7 @@ public class EmulateGrab : MonoBehaviour
     {
         string winner = GameWinner();
         //Debug.Log("Win Check");
+        GameWinnerEffect();
         if (winner == "player")
         {
             //Debug.Log("Player Win");
@@ -497,6 +504,17 @@ public class EmulateGrab : MonoBehaviour
         {
             O.SetActive(false);
         }
+
+        foreach (GameObject tile in BotWinTile)
+        {
+            tile.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+
+        foreach (GameObject tile in PlayerWinTile)
+        {
+            tile.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+        }
+
         for (int i = 0; i < playSpace.Length; i++)
         {
             playSpace[i] = 0;
@@ -732,4 +750,107 @@ public class EmulateGrab : MonoBehaviour
         }
         return winner;
     }
+
+    void GameWinnerEffect()
+    {
+        if(playSpace[0] == 1 && playSpace[1] == 1 && playSpace[2] == 1)
+        {
+            PlayerWinTile[0].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[1].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[2].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[3] == 1 && playSpace[4] == 1 && playSpace[5] == 1)
+        {
+            PlayerWinTile[3].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[5].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }       
+        if (playSpace[6] == 1 && playSpace[7] == 1 && playSpace[8] == 1 )
+        {
+            PlayerWinTile[6].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[7].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[8].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[0] == 1 && playSpace[3] == 1 && playSpace[6] == 1 )
+        {
+            PlayerWinTile[0].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[3].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[6].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[1] == 1 && playSpace[4] == 1 && playSpace[7] == 1 )
+        {
+            PlayerWinTile[1].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[7].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[2] == 1 && playSpace[5] == 1 && playSpace[8] == 1 )
+        {
+            PlayerWinTile[2].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[5].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[8].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[0] == 1 && playSpace[4] == 1 && playSpace[8] == 1 )
+        {
+            PlayerWinTile[0].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[8].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[2] == 1 && playSpace[4] == 1 && playSpace[6] == 1 )
+        {
+            PlayerWinTile[2].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            PlayerWinTile[6].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+
+
+        if (playSpace[0] == 2 && playSpace[1] == 2 && playSpace[2] == 2)
+        {
+            BotWinTile[0].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[1].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[2].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[3] == 2 && playSpace[4] == 2 && playSpace[5] == 2)
+        {
+            BotWinTile[3].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[5].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[6] == 2 && playSpace[7] == 2 && playSpace[8] == 2)
+        {
+            BotWinTile[6].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[7].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[8].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[0] == 2 && playSpace[3] == 2 && playSpace[6] == 2)
+        {
+            BotWinTile[0].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[3].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[6].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[1] == 2 && playSpace[4] == 2 && playSpace[7] == 2)
+        {
+            BotWinTile[1].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[7].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[2] == 2 && playSpace[5] == 2 && playSpace[8] == 2)
+        {
+            BotWinTile[2].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[5].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[8].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[0] == 2 && playSpace[4] == 2 && playSpace[8] == 2)
+        {
+            BotWinTile[0].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[8].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+        if (playSpace[2] == 2 && playSpace[4] == 2 && playSpace[6] == 2)
+        {
+            BotWinTile[2].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[4].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+            BotWinTile[6].transform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        }
+    }
+
 }
