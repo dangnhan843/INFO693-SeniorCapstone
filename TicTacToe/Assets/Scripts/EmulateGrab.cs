@@ -26,6 +26,7 @@ public class EmulateGrab : MonoBehaviour
     private bool isGrabbing = false;             //A control variable that stores if the user is grabbing anything
     private Transform grabbedTransform;          //A variable to hold the grabbed object's transform
     private Transform clickTransform;
+    public AudioSource TTTSound;
     public float zSpeed = 4.5f;                  //A variable to control the speed of movement in z-axis (forward/backward)
     public float rotationSpeedMultiplier = 2.0f; //A variable to increase the rotational speed for the controller
     private Transform hitTransform;              //A variable to hold the hit object's transform
@@ -163,13 +164,14 @@ public class EmulateGrab : MonoBehaviour
 
                             tileName = CheckHitName(hitInfo);
                             tileNumberX = CheckHitNumber(hitInfo);
-                            if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] == 0) //If we are hitting a grabbable object
+                            if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] == 0) 
                             {
                                 //clickTransform = hitInfo.transform;
                                 playSpace[tileNumberX - 1] = 1;
                                 //turnCount++;
 
                                 Xs[tileNumberX - 1].SetActive(true);
+                                TTTSound.Play();
                                 //Debug.Log(tileNumberX - 1);
                                 winConditionChecking();
                                 DoDelayBotThinking(1.5f);
@@ -575,7 +577,7 @@ public class EmulateGrab : MonoBehaviour
             //yield return new WaitForSeconds(0.0f);
 
             Os[movePosition].SetActive(true);
-
+            TTTSound.Play();
             //Debug.Log(turnCount.ToString());
             playSpace[movePosition] = 2;
             delayBotTime = false;
