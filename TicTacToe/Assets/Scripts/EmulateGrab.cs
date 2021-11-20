@@ -30,7 +30,9 @@ public class EmulateGrab : MonoBehaviour
     public float zSpeed = 4.5f;                  //A variable to control the speed of movement in z-axis (forward/backward)
     public float rotationSpeedMultiplier = 2.0f; //A variable to increase the rotational speed for the controller
     private Transform hitTransform;              //A variable to hold the hit object's transform
-    //public int turnCount = 0;
+    public int PlayerScore = 0;
+    public int BotScore = 0;
+    public int GameRound = 0;
     public bool playerFirst = true;
     
     bool playerTurn = true;
@@ -41,7 +43,7 @@ public class EmulateGrab : MonoBehaviour
     bool BotTurn = false;
     bool PlayerTurnFirst = false;
     bool delayPlayerTurn = false;
-    bool hardMode = false;
+    bool hardMode = true;
 
     float delayBotMoveTime = 1.1f;
     float delayResetTime = 3.0f;
@@ -61,7 +63,6 @@ public class EmulateGrab : MonoBehaviour
     void Start()
     {
         DoDelayReset(0.0f);
-
         animFromBot = GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>();
 
         TTTs = GameObject.FindGameObjectsWithTag("TTTSpace");
@@ -427,6 +428,7 @@ public class EmulateGrab : MonoBehaviour
             //Debug.Log("Player Win");
             isGameEnd = true;
             playerWin = true;
+            PlayerScore++;
             //playerFirst = false;
             //delayTimeCounter = true;
             DoDelayReset(delayResetTime);
@@ -438,6 +440,7 @@ public class EmulateGrab : MonoBehaviour
             //Debug.Log("Bot Win");
             isGameEnd = true;
             botWin = true;
+            BotScore++;
             //playerFirst = true;
             //delayTimeCounter = true;
             DoDelayReset(delayResetTime);
@@ -489,7 +492,7 @@ public class EmulateGrab : MonoBehaviour
         BotTurn = true;
     }
 
-        void DoDelayReset(float delayTime)
+    void DoDelayReset(float delayTime)
     {
         StartCoroutine(resetGame(delayTime));
     }
@@ -551,13 +554,24 @@ public class EmulateGrab : MonoBehaviour
                 PlayerTurnFirst = true;
                 break;
         }
-
+        if (GameRound == 10)
+        {
+            GameRound = 0;
+            PlayerScore = 0;
+            BotScore = 0;
+        }
+        GameRound++;
         playerWin = false;
         botWin = false;
         isDraw = false;
         isGameEnd = false;
         delayTimeCounter = false;
         tempMovePosition = 10;
+        /*
+        Debug.Log(GameRound.ToString());
+        Debug.Log(PlayerScore.ToString());
+        Debug.Log(BotScore.ToString());
+        */
     }
     
 
