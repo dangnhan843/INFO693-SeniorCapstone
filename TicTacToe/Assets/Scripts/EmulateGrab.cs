@@ -191,7 +191,7 @@ public class EmulateGrab : MonoBehaviour
             // if it is bot turn
             if (playerTurn == false && BotTurn == true && isGameEnd == false)
             {
-                bool tempGameEnd = checkEndMove(playSpace); // if game is still playable
+                bool tempGameEnd = checkEndMove(playSpace);                     // if game is still playable
                 BotTurn = true;
                 if (delayBotTime == false)
                 {
@@ -201,23 +201,23 @@ public class EmulateGrab : MonoBehaviour
                         int bestMove = 0;
                         for (int i = 0; i < playSpace.Length; i++)
                         {
-                            if (playSpace[i] == 0)
+                            if (playSpace[i] == 0)                              // check if the tile is playable 
                             {
-                                playSpace[i] = 2;
-                                float tempScore = Minimax(playSpace, 0, false);
-                                playSpace[i] = 0;
+                                playSpace[i] = 2;                               // tile is 2 for bot tile
+                                float tempScore = Minimax(playSpace, 0, false); // return the maximum score of that chosen tile
+                                playSpace[i] = 0;                               // switch the tile to playable tile
                                 if (tempScore > bestScore)
                                 {
-                                    bestScore = tempScore;
-                                    bestMove = i;
+                                    bestScore = tempScore;                      // choosing the tile with best score
+                                    bestMove = i;                               // choosing the tile number with best score
                                 }
                             }
                         }
-                        int MovePosition = (int)bestMove;
+                        int MovePosition = (int)bestMove;                       // bot chooses the best tile
                         tempMovePosition = MovePosition;
-                        delayBotTime = true;
-                        BotAnimation(MovePosition);
-                        DoDelayBotMove(MovePosition, delayBotMoveTime);
+                        delayBotTime = true; 
+                        BotAnimation(MovePosition);                             // delay for bot to start animation
+                        DoDelayBotMove(MovePosition, delayBotMoveTime);         // delay for aniumation
                         BotTurn = false;
                     }
                 }
@@ -236,7 +236,7 @@ public class EmulateGrab : MonoBehaviour
                     {
                         while (BotTurn)
                         {
-                            int movePosition = Random.Range(0, 8);
+                            int movePosition = Random.Range(0, 8);              // random tile for bot move
 
                             if (movePosition != (tileNumberX - 1))
                             {
