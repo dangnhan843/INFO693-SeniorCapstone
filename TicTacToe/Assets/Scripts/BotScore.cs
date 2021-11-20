@@ -13,7 +13,7 @@ public class BotScore : MonoBehaviour
         myText = GetComponent<Text>();
     }
 
-    // Update is called once per frame
+    // Auto update bot score when BotScore in EmulateGrab change
     void Update()
     {
         Score = GameObject.Find("Hand").GetComponent<EmulateGrab>().BotScore;

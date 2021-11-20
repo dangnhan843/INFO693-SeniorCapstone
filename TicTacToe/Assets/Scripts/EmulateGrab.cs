@@ -12,6 +12,7 @@ using UnityEngine;
 
 public class EmulateGrab : MonoBehaviour
 {
+    // default emulateGrad variable
     float controllerSpeedHorizontal = 1.5f;
     float controllerSpeedVertical = 1.5f;
     float controllerYaw = 0.0f;
@@ -19,23 +20,23 @@ public class EmulateGrab : MonoBehaviour
     float delayTime = 1.0f;
     private bool delayTimeCounter = false;
 
-    string tileName ;
-    int tileNumberX ;
-
+    string tileName ; // tile name for specific tile animation
+    int tileNumberX ; // the chosen tile number
 
     private bool isGrabbing = false;             //A control variable that stores if the user is grabbing anything
     private Transform grabbedTransform;          //A variable to hold the grabbed object's transform
     private Transform clickTransform;
-    public AudioSource TTTSound;
     public float zSpeed = 4.5f;                  //A variable to control the speed of movement in z-axis (forward/backward)
     public float rotationSpeedMultiplier = 2.0f; //A variable to increase the rotational speed for the controller
     private Transform hitTransform;              //A variable to hold the hit object's transform
-    public int PlayerScore = 0;
-    public int BotScore = 0;
-    public int GameRound = 0;
-    public bool playerFirst = true;
-    
-    bool playerTurn = true;
+    public int PlayerScore = 0;                  // Player Score
+    public int BotScore = 0;                     // Bot score
+    public int GameRound = 0;                    // Current round number
+    public bool playerFirst = true;              // Player start First
+    public AudioSource TTTSound;                 // sound for tile animation
+
+    // boolean value for game condition
+    bool playerTurn = true; 
     bool isGameEnd = false;
     bool botWin = false;
     bool playerWin = false;
@@ -45,52 +46,56 @@ public class EmulateGrab : MonoBehaviour
     bool delayPlayerTurn = false;
     bool hardMode = true;
 
-    float delayBotMoveTime = 1.1f;
-    float delayResetTime = 3.0f;
+    float delayBotMoveTime = 1.1f;              // Delay bot tile due to bot animation
+    float delayResetTime = 3.0f;                // Delay for reset game
     bool delayBotTime = false;
     private int tempMovePosition =10;
 
-    public GameObject[] Os;
-    public GameObject[] Xs;
-    public int[] playSpace;
-    public GameObject[] TTTs;
-    public GameObject[] BotWinTile;
-    public GameObject[] PlayerWinTile;
+    public GameObject[] Os;                     // Bot tile holder
+    public GameObject[] Xs;                     // Player tile holder
+    public int[] playSpace;                     // available playing tile
+    public GameObject[] TTTs;                   // list of tile for tile animation and selection
+    public GameObject[] BotWinTile;             // list of tile for bot win animation tile
+    public GameObject[] PlayerWinTile;          // list of tile for player win animation tile
 
-    public Animator animFromBot;
+    public Animator animFromBot;                // Animation for bot
 
 
     void Start()
     {
+        // reset game at start
         DoDelayReset(0.0f);
+
+        // Bot animation
         animFromBot = GameObject.FindGameObjectWithTag("Bot").GetComponent<Animator>();
 
+        // find and set default color for all title
         TTTs = GameObject.FindGameObjectsWithTag("TTTSpace");
         foreach (GameObject TTT in TTTs)
         {
             TTT.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
-        
 
+        // find and set default color for bot winning title
         BotWinTile = GameObject.FindGameObjectsWithTag("BotWinTile");
         foreach (GameObject tile in BotWinTile)
         {
             tile.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
 
+        // find and set default color for player winning title
         PlayerWinTile = GameObject.FindGameObjectsWithTag("PlayerWinTile");
         foreach (GameObject tile in PlayerWinTile)
         {
             tile.transform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
         }
 
-        //BotWinTile[1].GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
     }
 
     void Update()
     {
-        //TTTWinTile[1].GetComponent<SpriteRenderer>().material.color = Color.red;
 
+        // Controller 
         if (Input.GetKey(KeyCode.C)) //When the C key is pressed, we'll rotate the controller with the mouse movements
         {
             controllerYaw += controllerSpeedHorizontal * Input.GetAxis("Mouse X") * rotationSpeedMultiplier;
@@ -99,7 +104,7 @@ public class EmulateGrab : MonoBehaviour
             
         }
 
-        //We are casting a ray from the controller to check for hits with grabbable objects
+        //We are casting a ray from the controller to check for hits with playing tiles
         RaycastHit hitInfo2;
         if (Physics.Raycast(new Ray(transform.position, transform.forward), out hitInfo2))
         {
@@ -108,35 +113,14 @@ public class EmulateGrab : MonoBehaviour
                 if (hitTransform != null)
                     hitTransform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
                 hitTransform = hitInfo2.transform;
+                // if hit, change color of the tile to light green
                 hitTransform.GetComponent<SpriteRenderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-                //Debug.Log(hitInfo2.transform.GetComponent<SpriteRenderer>().material.color);
             }
             else
             {
+                // change color of the tile back to normal when not hit
                 hitTransform.GetComponent<SpriteRenderer>().material.color = new Color(0.0f, 0.0f, 0.0f, 0.0f);
             }
-
-            //CheckHit(hitInfo2);
-            
-            /*
-            //If we are pointing at a grabbable object, but not grabbing
-            if (hitInfo2.transform.tag == "Grabbable" && !isGrabbing)
-            {
-                if (hitTransform != null)
-                    SetHighlight(hitTransform, false); //We dim the previously pointed object
-
-                hitTransform = hitInfo2.transform; //We update the hitTransform as the currently pointed object's transform
-                SetHighlight(hitTransform, true); //We highlight the currently pointed object
-            }
-
-            else
-            {
-                if (hitTransform != null && !isGrabbing) //If we are hitting a non-grabbable object
-                    SetHighlight(hitTransform, false); //We dim the previously pointed object
-            }
-            //
-            */
-
 
         }
 
@@ -148,6 +132,8 @@ public class EmulateGrab : MonoBehaviour
             }
         }
         
+
+        // If it is player turn
         if (playerTurn == true && BotTurn == false && isGameEnd == false)
         {
             if (delayPlayerTurn == false)
@@ -156,7 +142,6 @@ public class EmulateGrab : MonoBehaviour
                 {
                     delayPlayerTurn = true;
                     DoDelayPlayerTurn(3.5f);
-                    //Debug.Log(BotTurn.ToString());
                     RaycastHit hitInfo;
                     if (delayTimeCounter == false)
                     {
@@ -167,18 +152,11 @@ public class EmulateGrab : MonoBehaviour
                             tileNumberX = CheckHitNumber(hitInfo);
                             if (hitInfo.transform.tag == "TTTSpace" && playSpace[tileNumberX - 1] == 0) 
                             {
-                                //clickTransform = hitInfo.transform;
-                                playSpace[tileNumberX - 1] = 1;
-                                //turnCount++;
-
-                                Xs[tileNumberX - 1].SetActive(true);
-                                TTTSound.Play();
-                                //Debug.Log(tileNumberX - 1);
-                                winConditionChecking();
-                                DoDelayBotThinking(1.5f);
-                                //playerTurn = false;
-                                //BotTurn = true;
-                                //BotMove(); // switch here
+                                playSpace[tileNumberX - 1] = 1;         // confirm player tile is 1 in playable tile list
+                                Xs[tileNumberX - 1].SetActive(true);    // draw X to the tile
+                                TTTSound.Play();                        // player sound effect
+                                winConditionChecking();                 // check for winning condition
+                                DoDelayBotThinking(1.5f);               // in care not winning, delay for bot animation
                             }
                         }
                     }
@@ -186,6 +164,7 @@ public class EmulateGrab : MonoBehaviour
             }
         }
 
+        // flipping between hard mode and easy mode by pressing H
         if (Input.GetKeyDown(KeyCode.H))
         {
             switch (hardMode)
@@ -201,24 +180,29 @@ public class EmulateGrab : MonoBehaviour
             }
         }
 
-        // AI minmax not working
+        // bot AI using minimax algorithm
+        //      Minimax using recursion function, allow bot to choose random playable tiles
+        //      and simulate player random player tiles.  The return value will be the tile
+        //      win highest value (bot win).
+
+        // when hard mode is on, bot uses minimax to choose the best tile
         if (hardMode == true)
         {
+            // if it is bot turn
             if (playerTurn == false && BotTurn == true && isGameEnd == false)
             {
-                bool tempGameEnd = checkEndMove(playSpace);
+                bool tempGameEnd = checkEndMove(playSpace); // if game is still playable
                 BotTurn = true;
                 if (delayBotTime == false)
                 {
                     if (!tempGameEnd)
                     {
-                        float bestScore = -Mathf.Infinity;
+                        float bestScore = -Mathf.Infinity;    
                         int bestMove = 0;
                         for (int i = 0; i < playSpace.Length; i++)
                         {
                             if (playSpace[i] == 0)
                             {
-                                //Debug.Log(i.ToString());
                                 playSpace[i] = 2;
                                 float tempScore = Minimax(playSpace, 0, false);
                                 playSpace[i] = 0;
@@ -229,7 +213,6 @@ public class EmulateGrab : MonoBehaviour
                                 }
                             }
                         }
-                        //Debug.Log(bestMove.ToString());
                         int MovePosition = (int)bestMove;
                         tempMovePosition = MovePosition;
                         delayBotTime = true;
@@ -241,10 +224,7 @@ public class EmulateGrab : MonoBehaviour
                 playerTurn = true;
             }
         }
-
-
-        //orign bot move
-        else
+        else // hard mode is off, bot chooses random tile
         {
             if (playerTurn == false && BotTurn == true && isGameEnd == false)
             {
@@ -278,7 +258,8 @@ public class EmulateGrab : MonoBehaviour
         }
 
 
-        //Debug.Log(turnCount.ToString());
+
+        // Default EmulateGrab Script for grabbing
 
         //If the left mouse button is released, we'll revert the changes to release the object
         if (isGrabbing && Input.GetKeyUp(KeyCode.Mouse0)) 
@@ -333,6 +314,8 @@ public class EmulateGrab : MonoBehaviour
         }
     }
 
+
+    // function check for tile name when raycast hit
     string CheckHitName(RaycastHit hitInfo2)
     {
         string name = "";
@@ -370,7 +353,8 @@ public class EmulateGrab : MonoBehaviour
         return name;
     }
 
-    int  CheckHitNumber(RaycastHit hitInfo2)
+    // function check for tile number when raycast hit
+    int CheckHitNumber(RaycastHit hitInfo2)
     {
         int number = 0;
         switch (hitInfo2.collider.name)
@@ -406,6 +390,7 @@ public class EmulateGrab : MonoBehaviour
         return number;
     } 
 
+    // function check if there is no more playable tile (for draw case)
     bool checkEndMove(int[] spaceToPlay)
     {
         foreach (int i in spaceToPlay)
@@ -418,35 +403,33 @@ public class EmulateGrab : MonoBehaviour
         return true;
     }
 
+    // fucntion for checking winner
     void winConditionChecking()
     {
         string winner = GameWinner();
-        //Debug.Log("Win Check");
-        GameWinnerEffect();
+        GameWinnerEffect();             // start game winner Effect
+
+        // if player win, add player score
         if (winner == "player")
         {
-            //Debug.Log("Player Win");
             isGameEnd = true;
             playerWin = true;
             PlayerScore++;
-            //playerFirst = false;
-            //delayTimeCounter = true;
             DoDelayReset(delayResetTime);
 
         }
 
+        // if bot win, add bot score
         if (winner == "bot")
         {
-            //Debug.Log("Bot Win");
             isGameEnd = true;
             botWin = true;
             BotScore++;
-            //playerFirst = true;
-            //delayTimeCounter = true;
             DoDelayReset(delayResetTime);
         }
 
         bool IsNotPlayble = PlayableSpace();
+        // if draw, normally reset game
         if (IsNotPlayble == false && playerWin == false && botWin == false
             )
         {
@@ -455,20 +438,17 @@ public class EmulateGrab : MonoBehaviour
             isGameEnd = true;
             isDraw = true;
             DoDelayReset(delayResetTime);
-            /*
-            Debug.Log("Draw");
-            delayTimeCounter = true;
-            */
         }
         
+        // condition for who start the game first
         if (playerFirst == false)
         {
-            //Debug.Log("player first");
-            //AITurnFirst(2.0f)
             playerFirst = true;
         }
         
     }
+
+    // Delay for player turn while bot is moving
     void DoDelayPlayerTurn(float delayTime)
     {
         StartCoroutine(DelayPlayerTurn(delayTime));
@@ -480,6 +460,7 @@ public class EmulateGrab : MonoBehaviour
         delayPlayerTurn = false;
     }
 
+    // Delay for bot thinking time
     void DoDelayBotThinking(float delayTime)
     {
         StartCoroutine(DelayBotThinking(delayTime));
@@ -492,6 +473,7 @@ public class EmulateGrab : MonoBehaviour
         BotTurn = true;
     }
 
+    // delay for reset game after finish one round
     void DoDelayReset(float delayTime)
     {
         StartCoroutine(resetGame(delayTime));
@@ -567,14 +549,10 @@ public class EmulateGrab : MonoBehaviour
         isGameEnd = false;
         delayTimeCounter = false;
         tempMovePosition = 10;
-        /*
-        Debug.Log(GameRound.ToString());
-        Debug.Log(PlayerScore.ToString());
-        Debug.Log(BotScore.ToString());
-        */
+
     }
     
-
+    // Delay for bot animation
     void DoDelayBotMove(int movePosition, float delayTime)
     {
         StartCoroutine(delayBotMove(movePosition,delayTime));
@@ -587,19 +565,13 @@ public class EmulateGrab : MonoBehaviour
         yield return new WaitForSeconds(delayTime);
         if (tempMovePosition != 10)
         {
-            //Debug.Log("Moving");
-            //yield return new WaitForSeconds(0.0f);
-
             Os[movePosition].SetActive(true);
             TTTSound.Play();
-            //Debug.Log(turnCount.ToString());
             playSpace[movePosition] = 2;
             delayBotTime = false;
-            //turnCount++;
             botResetAnimation();
             winConditionChecking();
         }
-        //Do the action after the delay time has finished.
     }
 
     void BotAnimation(int movePosition)
@@ -727,7 +699,7 @@ public class EmulateGrab : MonoBehaviour
             return false;
     }
 
-
+    // return winner name base on tiles
     string GameWinner()
     {
         string winner ="";
@@ -767,6 +739,8 @@ public class EmulateGrab : MonoBehaviour
         return winner;
     }
 
+
+    // game winning effect
     void GameWinnerEffect()
     {
         if(playSpace[0] == 1 && playSpace[1] == 1 && playSpace[2] == 1)

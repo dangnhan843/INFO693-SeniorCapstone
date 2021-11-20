@@ -7,13 +7,12 @@ public class GameRound : MonoBehaviour
 {
     Text myText;
     int Round;
-    // Start is called before the first frame update
     void Start()
     {
         myText = GetComponent<Text>();
     }
 
-    // Update is called once per frame
+    // Auto update round number when game number in EmulateGrab change
     void Update()
     {
         Round = GameObject.Find("Hand").GetComponent<EmulateGrab>().GameRound;

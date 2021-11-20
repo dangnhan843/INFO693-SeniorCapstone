@@ -13,7 +13,7 @@ public class PlayerScore : MonoBehaviour
         myText = GetComponent<Text>();
     }
 
-    // Update is called once per frame
+    // Auto update player score when PlayerScore in EmulateGrab change
     void Update()
     {
         Score = GameObject.Find("Hand").GetComponent<EmulateGrab>().PlayerScore;
